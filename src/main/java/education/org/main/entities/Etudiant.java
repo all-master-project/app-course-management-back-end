@@ -1,8 +1,5 @@
 package education.org.main.entities;
 
-import java.time.LocalDate;
-import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,11 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,72 +23,62 @@ import lombok.NoArgsConstructor;
 @Table(name="etudiant")
 @Data
 @NoArgsConstructor
-public class Etudiant {
-	
-	
-	
-	public Etudiant(Long id, String nom, String prenom, String numeroTelephone, String email, User user, Role role,
-			Set<Promotion> promotions, Set<Filiere> filieres) {
-		this.id = id;
-		Nom = nom;
-		Prenom = prenom;
-		this.numeroTelephone = numeroTelephone;
-		this.email = email;
-		this.user = user;
-		this.role = role;
-		this.promotions = promotions;
-		this.filieres = filieres;
-	}
+public class Etudiant implements Serializable{
+
+	private static final long serialVersionUID = -105154683842428010L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY )
 	private Long id;
 	
 	@Column(name = "nom")
-	private String Nom;
+	private String nom;
 	
 	@Column(name = "prenom")
-	private String Prenom;
+	private String prenom;
 	
-	@Column(name = "numero_telephone")
+	@Column(name = "numero_telephone", unique = true)
 	private String numeroTelephone;
 	
-	@Column(name = "email")
+	@Column(name = "email", unique = true)
 	private String email;
 	
-	@OneToOne
-	private User user; 
+	@Column(name = "username", unique = true)
+	private String username;
 	
-	@ManyToOne()
-	@JoinColumn(name = "id_role")
-	private Role role;
+	@Column(name = "password")
+	private String password;
 	
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<Role> roles;
+	 
+	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinTable(
 		        name = "inscrire", 
 		        joinColumns = {@JoinColumn(name="id_etudiant")}, 
 		        inverseJoinColumns = {@JoinColumn(name="id_promotion")}
 		    )
-	private Set<Promotion> promotions;
+	private List<Promotion> promotions= new ArrayList<Promotion>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
+	@JoinTable(   
 		        name = "inscrire", 
 		        joinColumns = {@JoinColumn(name="id_etudiant")}, 
 		        inverseJoinColumns = {@JoinColumn(name="id_filiere")}
 		    )
-	private Set<Filiere> filieres;
-	
-	public void addFiliere(Filiere filiere)
-	{
-		this.filieres.add(filiere);
-		filiere.getEtudiants().add(this);
+	private List<Filiere> filieres= new ArrayList<Filiere>();
+
+	public Etudiant(String nom, String prenom, String numeroTelephone, String email, String username, String password,
+			List<Role> roles, List<Promotion> promotions, List<Filiere> filieres) {
+		super();
+		this.nom = nom;
+		this.prenom = prenom;
+		this.numeroTelephone = numeroTelephone;
+		this.email = email;
+		this.username = username;
+		this.password = password;
+		this.roles = roles; 
+		this.promotions = promotions;
+		this.filieres = filieres;
 	}
-	
-	public void removeFiliere(Filiere filiere)
-	{
-		this.filieres.remove(filiere);
-		filiere.getEtudiants().remove(this);
-	}
-	
 }
