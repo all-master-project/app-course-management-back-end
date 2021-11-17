@@ -1,42 +1,50 @@
 package education.org.main.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "role" )
 @NoArgsConstructor
-@Data
 public class Role {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column(name = "role_name")
-	private String RoleName; 
+	private Long role_id;
+	 
+	@Column(name = "role_name", unique = true, nullable = false)
+	private String roleName; 
 	
 	@Column(name = "description_role")
-	private String Description;
-
+	private String description;
+	
 	public Role(String roleName, String description) {
 		super();
-		RoleName = roleName;
-		Description = description;
+		this.roleName = roleName;
+		this.description = description;
 	}
 
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }
  

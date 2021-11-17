@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="etudiant")
-@Data
+//@Data
 @NoArgsConstructor
 public class Etudiant implements Serializable{
 
@@ -29,15 +29,15 @@ public class Etudiant implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY )
-	private Long id;
+	private Long etudiant_id;
 	
 	@Column(name = "nom")
 	private String nom;
-	
+	 
 	@Column(name = "prenom")
 	private String prenom;
 	
-	@Column(name = "numero_telephone", unique = true)
+	@Column(name = "numero_telephone")
 	private String numeroTelephone;
 	
 	@Column(name = "email", unique = true)
@@ -46,14 +46,19 @@ public class Etudiant implements Serializable{
 	@Column(name = "username", unique = true)
 	private String username;
 	
-	@Column(name = "password")
+	@Column(name = "password") 
 	private String password;
-	
-	@ManyToMany(cascade = CascadeType.ALL)
+	 
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable( 
+	        name = "etudiant_role", 
+	        joinColumns = {@JoinColumn(name="etudiant_id")}, 
+	        inverseJoinColumns = {@JoinColumn(name="role_id")}
+	    )
 	private List<Role> roles;
 	 
-	@ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
-	@JoinTable(
+	@ManyToMany(cascade=CascadeType.ALL)
+	@JoinTable( 
 		        name = "inscrire", 
 		        joinColumns = {@JoinColumn(name="id_etudiant")}, 
 		        inverseJoinColumns = {@JoinColumn(name="id_promotion")}
@@ -71,7 +76,7 @@ public class Etudiant implements Serializable{
 	public Etudiant(String nom, String prenom, String numeroTelephone, String email, String username, String password,
 			List<Role> roles, List<Promotion> promotions, List<Filiere> filieres) {
 		super();
-		this.nom = nom;
+		this.nom = nom; 
 		this.prenom = prenom;
 		this.numeroTelephone = numeroTelephone;
 		this.email = email;
@@ -81,4 +86,79 @@ public class Etudiant implements Serializable{
 		this.promotions = promotions;
 		this.filieres = filieres;
 	}
+
+	public String getNom() {
+		return nom;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public String getPrenom() {
+		return prenom;
+	}
+
+	public void setPrenom(String prenom) {
+		this.prenom = prenom;
+	}
+
+	public String getNumeroTelephone() {
+		return numeroTelephone;
+	}
+
+	public void setNumeroTelephone(String numeroTelephone) {
+		this.numeroTelephone = numeroTelephone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	} 
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+
+	public List<Promotion> getPromotions() {
+		return promotions;
+	}
+
+	public void setPromotions(List<Promotion> promotions) {
+		this.promotions = promotions;
+	}
+
+	public List<Filiere> getFilieres() {
+		return filieres;
+	}
+
+	public void setFilieres(List<Filiere> filieres) {
+		this.filieres = filieres;
+	}
+	//Setters and Getters
+	
+	
 }

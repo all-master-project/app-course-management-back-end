@@ -3,9 +3,7 @@ package education.org.main.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.transaction.Transactional;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -14,8 +12,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import education.org.main.dao.EtudiantRepository;
+import education.org.main.dao.RoleRepository;
 import education.org.main.entities.Etudiant;
+import education.org.main.entities.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,18 +24,24 @@ import lombok.extern.slf4j.Slf4j;
 public class EtudiantService implements UserDetailsService {
 	
 	private EtudiantRepository etudiantRepo;
+	private RoleRepository roleRepository;
 	private PasswordEncoder passwordEncoder;
 	
-	public EtudiantService(EtudiantRepository etudiantRepo, PasswordEncoder passwordEncoder) {
+	public EtudiantService(EtudiantRepository etudiantRepo, PasswordEncoder passwordEncoder,RoleRepository roleRepository ) {
 		this.etudiantRepo = etudiantRepo;
 		this.passwordEncoder=passwordEncoder;
+		this.roleRepository= roleRepository;
 	}
 
 	public  Etudiant save(Etudiant etudiant) {
 		etudiant.setPassword(passwordEncoder.encode(etudiant.getPassword()));
 		return etudiantRepo.save(etudiant);
 	}
-	 
+	
+	public Etudiant getEtudiant(String username) {
+		return etudiantRepo.findByUsername(username);
+	}
+	
 	public Etudiant findById(Long id) {
 		return etudiantRepo.findById(id).get();
 	} 
@@ -56,9 +63,22 @@ public class EtudiantService implements UserDetailsService {
 	public List<Etudiant> findAll() {
 		
 		return etudiantRepo.findAll();
-	}
+	} 
+	
+	 public void addRoleToEtudiant(String username, String roleName)
+		{
+		 Etudiant etudiant = etudiantRepo.findByUsername(username);
+		 Role role = roleRepository.findByRoleName(roleName);
+		 
+		 log.info("username: {}, roleName: {}",etudiant.getUsername(), role.getRoleName());
+		}
 
-	@Transactional
+	 public void desaffecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
+		{
+		 etudiant.getRoles().remove(role);
+		}
+ 
+	@Transactional 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Etudiant etudiant = etudiantRepo.findByUsername(username);
@@ -70,11 +90,10 @@ public class EtudiantService implements UserDetailsService {
 			log.info("User found in database {} {} ...", etudiant.getUsername(), etudiant.getPassword());
 			Collection<GrantedAuthority> authorities= new ArrayList<>();
 			etudiant.getRoles().forEach(role->
-			{
+			{ 
 				authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
 			});
 			return new User(etudiant.getUsername(), etudiant.getPassword(), authorities);
 		}
-		
 	}
 }

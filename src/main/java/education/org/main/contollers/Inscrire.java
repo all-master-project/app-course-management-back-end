@@ -95,18 +95,18 @@ public class Inscrire {
 			{
 			 professeur.getMatieres().remove(matiere);
 			 matiere.getProfesseurs().remove(professeur);
-			}
+			} 
 		 
-		//Affecter Etudiant a un ou plusieure Role
-		 @PostMapping("affecterEtudiantAuRole")
-		 public void affecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
-			{
-			 etudiant.getRoles().add(role);
-			}
-		//desaffecter Etudiant a un ou plusieure Role
-		 @DeleteMapping("desaffecterEtudiantAuRole")
-		 public void desaffecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
-			{
-			 etudiant.getRoles().remove(role);
-			}
+//		//Affecter Etudiant a un ou plusieure Role
+//		 @PostMapping("affecterEtudiantAuRole")
+//		 public void affecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
+//			{
+//			 etudiant.getRoles().add(role);
+//			}
+//		//desaffecter Etudiant a un ou plusieure Role
+//		 @DeleteMapping("desaffecterEtudiantAuRole")
+//		 public void desaffecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
+//			{
+//			 etudiant.getRoles().remove(role);
+//			}
 }

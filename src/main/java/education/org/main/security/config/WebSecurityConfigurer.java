@@ -11,16 +11,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import education.org.main.filter.CustomerAuthenticationFilter;
+import education.org.main.filter.CustomerAuthorizationFilter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @EnableWebSecurity
 @Configuration 
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
-	
 	
 	private  UserDetailsService userDetailsService;
 	
@@ -37,15 +37,19 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 	  
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+//		CustomerAuthenticationFilter customerAuthenticationFilter = new CustomerAuthenticationFilter(authenticationManagerBean());
+//		customerAuthenticationFilter.setFilterProcessesUrl("/api/login");
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests().antMatchers("/login").permitAll();
-		http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/etudiants/**").hasAnyAuthority("USER");
+		http.authorizeRequests().antMatchers("/login","/api/etudiants/refresh/token/**").permitAll();
+		http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/etudiants/**","/api/etudiants/refresh/token").hasAnyAuthority("ROLE_USER");
+		http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/etudiants/**").hasAnyAuthority("ROLE_ADMIN");
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(new CustomerAuthenticationFilter(authenticationManagerBean()));
-	}
+		http.addFilterBefore(new CustomerAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+	} 
 	
-	@Bean
+	@Bean 
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
@@ -60,14 +64,4 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 	    public void setUserDetailsService(UserDetailsService userDetailsService) {
 	    this.userDetailsService = userDetailsService;
 	    }
-	    
-//	    @Bean
-//	    public PasswordEncoder passwordEncoder() {
-//	    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-//	    return bCryptPasswordEncoder;
-//	    }
-  
-	
-
-	
 } 
