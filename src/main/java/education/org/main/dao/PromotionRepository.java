@@ -7,5 +7,5 @@ import education.org.main.entities.Promotion;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
-
+	Promotion findByTitre(String titre);
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import education.org.main.dao.PromotionRepository;
+import education.org.main.entities.Etudiant;
 import education.org.main.entities.Promotion;
 
 @Service
@@ -17,6 +18,18 @@ public class PromotionService {
 		this.PromotionRepo = PromotionRepo;
 	}
 
+	public void addEtudiantToPromotion(Promotion promotion, Etudiant etudiant)
+	{
+		Promotion promo = PromotionRepo.findById(promotion.getId()).get();
+		if(promo!=null) promo.getEtudiants().add(etudiant);
+		etudiant.getPromotions().add(promo);
+	}
+	public void removeEtudiantToPromotion(Promotion promotion, Etudiant etudiant)
+	{
+		Promotion promo = PromotionRepo.findById(promotion.getId()).get();
+		if(promo!=null) promo.getEtudiants().remove(etudiant);
+		etudiant.getPromotions().remove(promo);
+	}
 	 
 	public  Promotion save(Promotion Promotion) {
 		return PromotionRepo.save(Promotion);

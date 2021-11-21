@@ -16,7 +16,6 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -49,7 +48,7 @@ public class Etudiant implements Serializable{
 	@Column(name = "password") 
 	private String password;
 	 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany
 	@JoinTable( 
 	        name = "etudiant_role", 
 	        joinColumns = {@JoinColumn(name="etudiant_id")}, 
@@ -57,9 +56,9 @@ public class Etudiant implements Serializable{
 	    )
 	private List<Role> roles;
 	 
-	@ManyToMany(cascade=CascadeType.ALL)
+	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable( 
-		        name = "inscrire", 
+		        name = "abonner", 
 		        joinColumns = {@JoinColumn(name="id_etudiant")}, 
 		        inverseJoinColumns = {@JoinColumn(name="id_promotion")}
 		    )
@@ -86,6 +85,7 @@ public class Etudiant implements Serializable{
 		this.promotions = promotions;
 		this.filieres = filieres;
 	}
+	
 
 	public String getNom() {
 		return nom;
@@ -158,7 +158,6 @@ public class Etudiant implements Serializable{
 	public void setFilieres(List<Filiere> filieres) {
 		this.filieres = filieres;
 	}
-	//Setters and Getters
 	
 	
 }

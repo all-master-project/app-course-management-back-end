@@ -14,8 +14,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import education.org.main.dao.EtudiantRepository;
+import education.org.main.dao.FiliereRepository;
+import education.org.main.dao.PromotionRepository;
 import education.org.main.dao.RoleRepository;
 import education.org.main.entities.Etudiant;
+import education.org.main.entities.Filiere;
+import education.org.main.entities.Promotion;
 import education.org.main.entities.Role;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,14 +28,80 @@ import lombok.extern.slf4j.Slf4j;
 public class EtudiantService implements UserDetailsService {
 	
 	private EtudiantRepository etudiantRepo;
-	private RoleRepository roleRepository;
+	private PromotionRepository promotionRepository;
+	private FiliereRepository filiereRepository;
 	private PasswordEncoder passwordEncoder;
 	
-	public EtudiantService(EtudiantRepository etudiantRepo, PasswordEncoder passwordEncoder,RoleRepository roleRepository ) {
+	public EtudiantService(EtudiantRepository etudiantRepo, PromotionRepository promotionRepository,
+		   FiliereRepository filiereRepository, PasswordEncoder passwordEncoder) {
+		super();
 		this.etudiantRepo = etudiantRepo;
-		this.passwordEncoder=passwordEncoder;
-		this.roleRepository= roleRepository;
+		this.promotionRepository = promotionRepository;
+		this.filiereRepository = filiereRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
+	
+	@Transactional
+	public void addRoleToEtudiant(Etudiant etudiant, Role role)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		if(etud!=null)
+			etud.getRoles().add(role);
+		else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	}
+	
+	@Transactional
+	public void removeRoleToEtudiant(Etudiant etudiant, Role role)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		if(etud!=null)
+			etud.getRoles().remove(role);
+		else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	}
+ 
+	@Transactional
+	public void addPromotionToEtudiant(Etudiant etudiant,Promotion promotion)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Promotion promo= promotionRepository.findByTitre(promotion.getTitre());
+		if(etud!=null && promo!=null) {
+			etud.getPromotions().add(promo);
+			promo.getEtudiants().add(etud);
+		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	}
+	
+	@Transactional
+	public void removePromotionToEtudiant(Etudiant etudiant,Promotion promotion)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Promotion promo= promotionRepository.findByTitre(promotion.getTitre());
+		if(etud!=null && promo!=null) {
+			etud.getPromotions().remove(promo);
+			promo.getEtudiants().remove(etud);
+		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	}
+	
+	@Transactional
+	public void addFiliereToEtudiant(Etudiant etudiant,Filiere filiere)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Filiere fil = filiereRepository.findByTitre(filiere.getTitre());
+		if(etud!=null && fil!=null) {
+			etud.getFilieres().add(fil);
+			fil.getEtudiants().add(etud);
+		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	}
+	
+	@Transactional
+	public void removeFiliereToEtudiant(Etudiant etudiant,Filiere filiere)
+	{
+		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Filiere fil = filiereRepository.findByTitre(filiere.getTitre());
+		if(etud!=null && fil!=null) {
+			etud.getFilieres().remove(fil);
+			fil.getEtudiants().remove(etud);
+		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+	} 
 
 	public  Etudiant save(Etudiant etudiant) {
 		etudiant.setPassword(passwordEncoder.encode(etudiant.getPassword()));
@@ -65,13 +135,7 @@ public class EtudiantService implements UserDetailsService {
 		return etudiantRepo.findAll();
 	} 
 	
-	 public void addRoleToEtudiant(String username, String roleName)
-		{
-		 Etudiant etudiant = etudiantRepo.findByUsername(username);
-		 Role role = roleRepository.findByRoleName(roleName);
-		 
-		 log.info("username: {}, roleName: {}",etudiant.getUsername(), role.getRoleName());
-		}
+	 
 
 	 public void desaffecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
 		{
