@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CustomerAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
-	
+
 	private final AuthenticationManager authenticationManager;
 	public CustomerAuthenticationFilter(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
@@ -39,43 +39,43 @@ public class CustomerAuthenticationFilter extends UsernamePasswordAuthentication
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		log.info("Username is {}",username); log.info("password is {}",password);
-		UsernamePasswordAuthenticationToken autheticationToken = 
+		UsernamePasswordAuthenticationToken autheticationToken =
 				   new UsernamePasswordAuthenticationToken(username, password);
 		return authenticationManager.authenticate(autheticationToken);
 	}
-	
+
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authentication) throws IOException, ServletException {
 		User user = (User) authentication.getPrincipal();
 		log.info("successfulAuthentication( username: {}",user.getUsername());
 		log.info("successfulAuthentication( password: {}",user.getPassword());
-		
-		Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); 
+
+		Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
 		String access_token = JWT.create()
 				.withSubject(user.getUsername())
 				.withExpiresAt(new Date(System.currentTimeMillis()+10*6*1000))
 				.withIssuer(request.getRequestURL().toString())
-				.withClaim("roles", 
+				.withClaim("roles",
 									user.getAuthorities().stream()
 									.map(GrantedAuthority::getAuthority)
 									.collect(Collectors.toList()))
 				.sign(algorithm);
-		
+
 		String refresh_token = JWT.create()
-				.withSubject(user.getUsername()) 
+				.withSubject(user.getUsername())
 				.withExpiresAt(new Date(System.currentTimeMillis()+30*60*1000))
 				.withIssuer(request.getRequestURL().toString())
 				.sign(algorithm);
-		
+
 //		response.setHeader("access_token", access_token);
-//		response.setHeader("refresh_token", refresh_token); 
-		
+//		response.setHeader("refresh_token", refresh_token);
+
 		Map<String, String> tokens= new HashMap<String, String>();
 		tokens.put("access_token", access_token);
 		tokens.put("refresh_token", refresh_token);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 	}
-	
-} 
+
+}
