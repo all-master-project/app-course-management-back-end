@@ -1,16 +1,22 @@
 package education.org.main.services;
 
 import education.org.main.dao.UtilisateurRepository;
+import education.org.main.entities.Etudiant;
+import education.org.main.entities.Role;
 import education.org.main.entities.Utilisateur;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.transaction.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -22,13 +28,33 @@ public class UtilisateurService {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
     
-     
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Transactional
+	public void addRoleToUser(Utilisateur user, Role role)
+	{
+    	Utilisateur utilisateur = utilisateurRepository.findByUsername(user.getUsername());
+		if(utilisateur!=null)
+			utilisateur.getRoles().add(role);
+		else {throw new UsernameNotFoundException(utilisateur.getUsername() );}
+	}
+	
+	@Transactional
+	public void removeRoleToUser(Utilisateur user, Role role)
+	{
+		Utilisateur utlisateur= utilisateurRepository.findByUsername(user.getUsername());
+		if(utlisateur!=null)
+			utlisateur.getRoles().remove(role);
+		else {throw new UsernameNotFoundException(utlisateur.getUsername() );}
+	}
+    
     public List<Utilisateur> getAllUsers() {
         return utilisateurRepository.findAll();
     }
 
-     
     public Utilisateur save(Utilisateur user) {
+    	user.setPassword(passwordEncoder.encode(user.getPassword()));
         return utilisateurRepository.saveAndFlush(user);
     }
 

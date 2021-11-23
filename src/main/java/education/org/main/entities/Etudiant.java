@@ -48,7 +48,7 @@ public class Etudiant implements Serializable{
 	@Column(name = "password") 
 	private String password;
 	 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable( 
 	        name = "etudiant_role", 
 	        joinColumns = {@JoinColumn(name="etudiant_id")}, 

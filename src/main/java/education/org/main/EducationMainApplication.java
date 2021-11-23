@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import education.org.main.dao.UtilisateurRepository;
 import education.org.main.entities.*;
@@ -23,6 +24,7 @@ import education.org.main.dao.FiliereRepository;
 import education.org.main.dao.PromotionRepository;
 import education.org.main.services.EtudiantService;
 import education.org.main.services.RoleService;
+import education.org.main.services.UtilisateurService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,6 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication
 public class EducationMainApplication extends SpringBootServletInitializer implements CommandLineRunner {
 
+	@Autowired
+	private UtilisateurService utilisateurService;
+	
+	@Autowired
+	private RoleService roleService;
+	
 //	public static void main(String[] args) {
 //		new SpringApplicationBuilder(EducationMainApplication.class)
 //		.properties(Collections.singletonMap("", "value"))
@@ -143,6 +151,47 @@ public class EducationMainApplication extends SpringBootServletInitializer imple
 
 	@Override
 	public void run(String... args) throws Exception {
+									//String username, String password, int active, List<Role> roles, String email, String fullName
+		//############################## Rules ########################################
+////		//Rules
+//		Role USER = new Role("ROLE_USER", "can read course");
+//		Role ADMIN_MANAGER = new Role("ROLE_ADMIN_MANAGER", "can manage operation");
+//		Role ADMIN_PROFFESSEUR = new Role("ROLE_ADMIN_PROFFESSEUR", "can manage courses");
+//		Role ADMIN_GENERAL = new Role("ROLE_ADMIN_GENERAL", "manage all application");
+//		Role ANONYMOUS = new Role("ROLE_ANONYMOUS", "can only acces to landin page");
+//		Role CUSTOMER_USER = new Role("ROLE_CUSTOMER_USER", "private access");
+////		// save roles
+//					roleService.save(USER);
+//					roleService.save(ADMIN_MANAGER);
+//					roleService.save(ADMIN_PROFFESSEUR);
+//					roleService.save(ADMIN_GENERAL);
+//					roleService.save(ANONYMOUS);
+//					roleService.save(CUSTOMER_USER);
+//		
+//		Utilisateur Brahim = new Utilisateur("Brahim","1234", 1,new ArrayList<>() ,"elbanaji.brahim@gmail.com", "Brahim EL BANAJI");
+//		Utilisateur Hamza = new Utilisateur("Hamza","1234", 1,new ArrayList<>() ,"hamza.galouchhe@gmail.com", "Hamza GALLOUCHE");
+//		Utilisateur Soufiane = new Utilisateur("Soufiane","1234", 1,new ArrayList<>() ,"soufiane.gallouche@gmail.com", "Soufiane GALLOUCHE");
+//		Utilisateur Majda = new Utilisateur("Majda","1234", 1,new ArrayList<>() ,"majda.brahim@gmail.com", "Majda EL BANAJI");
+//		
+//		utilisateurService.save(Brahim);
+//		utilisateurService.save(Hamza);
+//		utilisateurService.save(Soufiane);
+//		utilisateurService.save(Majda);
+//		//############################## Role->Utlisateur ########################################
+//		utilisateurService.addRoleToUser(Brahim, USER);
+//		utilisateurService.addRoleToUser(Hamza, ADMIN_GENERAL);
+//		utilisateurService.addRoleToUser(Hamza, ADMIN_MANAGER);
+//		utilisateurService.addRoleToUser(Hamza, ADMIN_PROFFESSEUR);
+//		utilisateurService.addRoleToUser(Soufiane, ANONYMOUS);
+//		utilisateurService.addRoleToUser(Soufiane, USER);
+
+		//############################## Role->Etudiant ########################################
+//		etudServ.addRoleToEtudiant(Brahim, USER);
+//		etudServ.addRoleToEtudiant(Hamza, ADMIN_GENERAL); etudServ.addRoleToEtudiant(Hamza, ADMIN_MANAGER);
+//		etudServ.addRoleToEtudiant(yassin, ADMIN_PROFFESSEUR);
+//		etudServ.addRoleToEtudiant(khawla, ANONYMOUS);
+//		etudServ.addRoleToEtudiant(Karim, CUSTOMER_USER);
+//		etudServ.addRoleToEtudiant(khalid, ANONYMOUS);
 
 //		repositoryRestConfiguration.getCorsRegistry()
 //		.addMapping("/**")
@@ -184,12 +233,12 @@ public class EducationMainApplication extends SpringBootServletInitializer imple
 		// Utilisateur(String username, String password, String roles, String permissions,
 		// String fullName)
 
-		Utilisateur superAdmin = this.userRepository.findByUsername("superAdmin");
-		if (superAdmin == null) {
-			superAdmin = new Utilisateur("superAdmin",passwordEncoder.encode("superAdmin"),"ADMIN","ALL",
-					"hamza.gallouhe@gmail.com", "Hamza Gallouche");
-			this.userRepository.save(superAdmin);
-		}
+//		Utilisateur superAdmin = this.userRepository.findByUsername("superAdmin");
+//		if (superAdmin == null) {
+//			superAdmin = new Utilisateur("superAdmin",passwordEncoder.encode("superAdmin"),"ADMIN","ALL",
+//					"hamza.gallouhe@gmail.com", "Hamza Gallouche");
+//			this.userRepository.save(superAdmin);
+//		}
 
 	}
 }

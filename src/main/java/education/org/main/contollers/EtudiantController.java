@@ -48,46 +48,7 @@ public class EtudiantController {
 	}
 	
 	@PostMapping("refresh/token")
-	public  void refresh(HttpServletRequest request, HttpServletResponse response) throws JsonGenerationException, JsonMappingException, IOException {
-		String authorizationHeader = request.getHeader("AUTHORIZATION");
-		if(authorizationHeader!=null && authorizationHeader.startsWith("Bearer "))
-		{
-			try {
-				String refresh_token= authorizationHeader.substring("Bearer ".length());
-				Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-				JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-				DecodedJWT decodeJWT= jwtVerifier.verify(refresh_token);
-				String username = decodeJWT.getSubject();
-				Etudiant etudiant= etudiantService.getEtudiant(username);
-				
-				String access_token = JWT.create()
-						.withSubject(etudiant.getUsername())
-						.withExpiresAt(new Date(System.currentTimeMillis()+10*6*100))
-						.withIssuer(request.getRequestURL().toString())
-						.withClaim("roles", 
-								etudiant.getRoles().stream()
-											.map(Role::getRoleName)
-											.collect(Collectors.toList()))
-						.sign(algorithm);
-
-				Map<String, String> tokens= new HashMap<String, String>();
-				tokens.put("access_token", access_token);
-				tokens.put("refresh_token", refresh_token);
-				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-				new ObjectMapper().writeValue(response.getOutputStream(), tokens);
-			} catch (Exception exception) {
-				log.info("Error logging in: {}", exception.getMessage());
-				response.setHeader("error", exception.getMessage());
-				response.setStatus(org.springframework.http.HttpStatus.FORBIDDEN.value());
-				Map<String, String> error= new HashMap<String, String>();
-				error.put("error", exception.getMessage());
-				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-				new ObjectMapper().writeValue(response.getOutputStream(), error);
-			}
-		}else {
-			throw new RuntimeException("Refresh Token is missing...");
-		}
-	}
+	public  void refresh(HttpServletRequest request, HttpServletResponse response) throws JsonGenerationException, JsonMappingException, IOException {}
 	 
 	@GetMapping("findById")
 	public Etudiant findById(Long id) {

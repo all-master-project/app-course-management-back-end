@@ -1,33 +1,28 @@
 package education.org.main.contollers;
 
-import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
-
-import java.util.ArrayList;
-import java.util.Date;
-
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import education.org.main.dto.DisplayErrorDto;
 import education.org.main.dto.JwtTokenDto;
-import education.org.main.entities.Utilisateur;
 import education.org.main.security.config.JwtProperties;
-import education.org.main.security.config.LoginViewModel;
-import education.org.main.security.config.UserPrincipal;
 import education.org.main.services.UtilisateurService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import com.auth0.jwt.JWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import education.org.main.services.LoginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@Slf4j
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/")
@@ -35,8 +30,8 @@ public class LoginController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+   @Autowired
+   private LoginService loginService;
 
     @Autowired
     UtilisateurService utilisateurService;
@@ -45,46 +40,14 @@ public class LoginController {
     @PostMapping("/login")
     @ResponseBody
     public JwtTokenDto loginService(HttpServletRequest request, HttpServletResponse response) {
-
-        String token = null;
-        LOGGER.info("Authentication operation => begin");
+    	Map<String, String> tokens=new HashMap<String, String>();
+    	LOGGER.info("Authentication operation => begin");
         try {
-            // Grab credentials and map them to login viewmodel
-            LoginViewModel credentials = null;
-
-            credentials = new ObjectMapper().readValue(request.getInputStream(), LoginViewModel.class);
-
-            // Create login token
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    credentials.getUsername(),
-                    credentials.getPassword(),
-                    new ArrayList<>());
-
-            // Authenticate user
-            LOGGER.info("Processing the Authentication request");
-            Authentication auth = authenticationManager.authenticate(authenticationToken);
-
-
-            UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-            Utilisateur user =  utilisateurService.findByUsername(principal.getUsername());
-            LOGGER.info("generate JWT Token ...");
-
-
-//		         if(!isCaptchaValid("6Ld3zxwaAAAAANhs9UFfNtLuLIW4YVj7vQWUt9d4", credentials.getCaptchaToken() )){
-//		 			throw new AuthenticationException("USER_INVALID_CREDENTIALS", new Throwable());
-//		 		}
-
-            // Create JWT Token;
-            token = JWT.create()
-                    .withSubject(principal.getUsername())
-                    .withClaim("role", user.getRoles())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                    .sign(HMAC512(JwtProperties.SECRET.getBytes()));
-
-
+        	Authentication auth= loginService.authenticate(request, response);
+        	tokens = loginService.generateToken(auth);
             // Add token in response
-            response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX +  token);
-            LOGGER.info(" JWT Token genereated :: " + token );
+            response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX +  tokens);
+            LOGGER.info(" JWT Token genereated :: " + tokens );
 
         } catch (BadCredentialsException e) {
             LOGGER.error(e.getMessage(), e);
@@ -103,8 +66,13 @@ public class LoginController {
 
         LOGGER.info("Authentication operation => end");
         LOGGER.info("Done");
-        return new JwtTokenDto(token, new DisplayErrorDto("SUCCESS","Vous ête authentifié avec succée"), true);
+        return new JwtTokenDto(tokens, new DisplayErrorDto("SUCCESS","Vous ête authentifié avec succée"), true);
 
     }
-
+    
+    @PostMapping("/refresh/token")
+    public void jwtRefresher(HttpServletRequest request, HttpServletResponse response) throws JsonGenerationException, JsonMappingException, IOException
+    {
+    	loginService.jwtRefresher(request, response);
+    }
 }
