@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -38,6 +39,10 @@ public class Professeur {
 	 
 	@Column(name="numero_telephone")
 	private String NumeroTelephone;
+	
+	@OneToOne
+	@JoinColumn(name = "user_association")
+	private Utilisateur user;
 	
 	@ManyToMany()
 	@JoinTable(

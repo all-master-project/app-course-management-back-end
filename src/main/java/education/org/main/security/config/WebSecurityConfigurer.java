@@ -56,6 +56,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter{
 				.addFilter(new JwtAuthorisationFilter(authenticationManager(),userRepository))
 				.authorizeRequests()
 				.antMatchers("/api/login","/api/refresh/token").permitAll()
+				.antMatchers("/api/etudiants/findAll").hasRole("USER")
 				.anyRequest().authenticated()
 				.and()
 				.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login");

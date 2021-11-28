@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 
@@ -20,7 +21,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="etudiant")
-//@Data
 @NoArgsConstructor
 public class Etudiant implements Serializable{
 
@@ -36,25 +36,9 @@ public class Etudiant implements Serializable{
 	@Column(name = "prenom")
 	private String prenom;
 	
-	@Column(name = "numero_telephone")
-	private String numeroTelephone;
-	
-	@Column(name = "email", unique = true)
-	private String email;
-	
-	@Column(name = "username", unique = true)
-	private String username;
-	
-	@Column(name = "password") 
-	private String password;
-	 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable( 
-	        name = "etudiant_role", 
-	        joinColumns = {@JoinColumn(name="etudiant_id")}, 
-	        inverseJoinColumns = {@JoinColumn(name="role_id")}
-	    )
-	private List<Role> roles;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_association")
+	private Utilisateur user;
 	 
 	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable( 
@@ -62,7 +46,7 @@ public class Etudiant implements Serializable{
 		        joinColumns = {@JoinColumn(name="id_etudiant")}, 
 		        inverseJoinColumns = {@JoinColumn(name="id_promotion")}
 		    )
-	private List<Promotion> promotions= new ArrayList<Promotion>();
+	private List<Promotion> promotions = new ArrayList<Promotion>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(   
@@ -72,20 +56,22 @@ public class Etudiant implements Serializable{
 		    )
 	private List<Filiere> filieres= new ArrayList<Filiere>();
 
-	public Etudiant(String nom, String prenom, String numeroTelephone, String email, String username, String password,
-			List<Role> roles, List<Promotion> promotions, List<Filiere> filieres) {
+	public Etudiant(String nom, String prenom, Utilisateur user, List<Promotion> promotions, List<Filiere> filieres) {
 		super();
-		this.nom = nom; 
+		this.nom = nom;
 		this.prenom = prenom;
-		this.numeroTelephone = numeroTelephone;
-		this.email = email;
-		this.username = username;
-		this.password = password;
-		this.roles = roles; 
+		this.user = user;
 		this.promotions = promotions;
 		this.filieres = filieres;
 	}
-	
+
+	public Long getEtudiant_id() {
+		return etudiant_id;
+	}
+
+	public void setEtudiant_id(Long etudiant_id) {
+		this.etudiant_id = etudiant_id;
+	}
 
 	public String getNom() {
 		return nom;
@@ -103,44 +89,12 @@ public class Etudiant implements Serializable{
 		this.prenom = prenom;
 	}
 
-	public String getNumeroTelephone() {
-		return numeroTelephone;
+	public Utilisateur getUser() {
+		return user;
 	}
 
-	public void setNumeroTelephone(String numeroTelephone) {
-		this.numeroTelephone = numeroTelephone;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	} 
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public List<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
+	public void setUser(Utilisateur user) {
+		this.user = user;
 	}
 
 	public List<Promotion> getPromotions() {
@@ -159,5 +113,7 @@ public class Etudiant implements Serializable{
 		this.filieres = filieres;
 	}
 	
+	
+
 	
 }

@@ -21,95 +21,99 @@ import education.org.main.entities.Etudiant;
 import education.org.main.entities.Filiere;
 import education.org.main.entities.Promotion;
 import education.org.main.entities.Role;
+import education.org.main.entities.Utilisateur;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class EtudiantService implements UserDetailsService {
+public class EtudiantService {
 	
 	private EtudiantRepository etudiantRepo;
 	private PromotionRepository promotionRepository;
 	private FiliereRepository filiereRepository;
 	private PasswordEncoder passwordEncoder;
+	private UtilisateurService utilisateurService;
 	
 	public EtudiantService(EtudiantRepository etudiantRepo, PromotionRepository promotionRepository,
-		   FiliereRepository filiereRepository, PasswordEncoder passwordEncoder) {
+		   FiliereRepository filiereRepository, PasswordEncoder passwordEncoder, UtilisateurService utilisateurService) {
 		super();
 		this.etudiantRepo = etudiantRepo;
 		this.promotionRepository = promotionRepository;
 		this.filiereRepository = filiereRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.utilisateurService = utilisateurService;
 	}
 	
 	@Transactional
-	public void addRoleToEtudiant(Etudiant etudiant, Role role)
+	public void addUserAssociationToEtudiant(Etudiant etudiant,Utilisateur user)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
-		if(etud!=null)
-			etud.getRoles().add(role);
-		else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
+		Utilisateur utilisateur = utilisateurService.findByUsername(user.getUsername());
+		if(etud != null && user != null) {
+			etud.setUser(utilisateur);
+		}else {throw new UsernameNotFoundException(etudiant.getNom() );}
 	}
 	
 	@Transactional
-	public void removeRoleToEtudiant(Etudiant etudiant, Role role)
+	public void removeUserAssociationToEtudiant(Etudiant etudiant,Utilisateur user)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
-		if(etud!=null)
-			etud.getRoles().remove(role);
-		else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
+		Utilisateur utilisateur = utilisateurService.findByUsername(user.getUsername());
+		if(etud != null && user != null) {
+			etud.setUser(null);
+		}else {throw new UsernameNotFoundException(etudiant.getNom() );}
 	}
  
 	@Transactional
 	public void addPromotionToEtudiant(Etudiant etudiant,Promotion promotion)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
 		Promotion promo= promotionRepository.findByTitre(promotion.getTitre());
-		if(etud!=null && promo!=null) {
+		if(etud != null && promo != null) {
 			etud.getPromotions().add(promo);
 			promo.getEtudiants().add(etud);
-		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		}else {throw new UsernameNotFoundException(etudiant.getNom() );}
 	}
 	
 	@Transactional
 	public void removePromotionToEtudiant(Etudiant etudiant,Promotion promotion)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
 		Promotion promo= promotionRepository.findByTitre(promotion.getTitre());
 		if(etud!=null && promo!=null) {
 			etud.getPromotions().remove(promo);
 			promo.getEtudiants().remove(etud);
-		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		}else {throw new UsernameNotFoundException(etudiant.getNom()  );}
 	}
 	
 	@Transactional
 	public void addFiliereToEtudiant(Etudiant etudiant,Filiere filiere)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
 		Filiere fil = filiereRepository.findByTitre(filiere.getTitre());
 		if(etud!=null && fil!=null) {
 			etud.getFilieres().add(fil);
 			fil.getEtudiants().add(etud);
-		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		}else {throw new UsernameNotFoundException(etudiant.getNom()  );}
 	}
 	
 	@Transactional
 	public void removeFiliereToEtudiant(Etudiant etudiant,Filiere filiere)
 	{
-		Etudiant etud= etudiantRepo.findByUsername(etudiant.getUsername());
+		Etudiant etud= etudiantRepo.findById(etudiant.getEtudiant_id()).get();
 		Filiere fil = filiereRepository.findByTitre(filiere.getTitre());
 		if(etud!=null && fil!=null) {
 			etud.getFilieres().remove(fil);
 			fil.getEtudiants().remove(etud);
-		}else {throw new UsernameNotFoundException(etudiant.getUsername() );}
+		}else {throw new UsernameNotFoundException(etudiant.getNom() );}
 	} 
 
 	public  Etudiant save(Etudiant etudiant) {
-		etudiant.setPassword(passwordEncoder.encode(etudiant.getPassword()));
 		return etudiantRepo.save(etudiant);
 	}
 	
-	public Etudiant getEtudiant(String username) {
-		return etudiantRepo.findByUsername(username);
+	public Etudiant getEtudiant(String nom) {
+		return etudiantRepo.findByNom(nom);
 	}
 	
 	public Etudiant findById(Long id) {
@@ -134,30 +138,4 @@ public class EtudiantService implements UserDetailsService {
 		
 		return etudiantRepo.findAll();
 	} 
-	
-	 
-
-	 public void desaffecterProffesseurAMatiere(@RequestBody Etudiant etudiant, @RequestBody Role role)
-		{
-		 etudiant.getRoles().remove(role);
-		}
- 
-	@Transactional 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Etudiant etudiant = etudiantRepo.findByUsername(username);
-		
-		if(etudiant == null) {
-			log.info("User not found in database :{}",username);
-			throw new UsernameNotFoundException("User not found in database");
-		}else { 
-			log.info("User found in database {} {} ...", etudiant.getUsername(), etudiant.getPassword());
-			Collection<GrantedAuthority> authorities= new ArrayList<>();
-			etudiant.getRoles().forEach(role->
-			{ 
-				authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
-			});
-			return new User(etudiant.getUsername(), etudiant.getPassword(), authorities);
-		}
-	}
 }

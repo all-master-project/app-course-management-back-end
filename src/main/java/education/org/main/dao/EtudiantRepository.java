@@ -7,5 +7,5 @@ import education.org.main.entities.Etudiant;
 
 @EnableJpaRepositories
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
-		Etudiant findByUsername(String username);
+		Etudiant findByNom(String nom);
 }

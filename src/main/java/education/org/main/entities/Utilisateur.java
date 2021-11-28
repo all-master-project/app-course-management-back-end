@@ -19,15 +19,15 @@ public class Utilisateur implements Serializable {
     @GeneratedValue
     private Long id; 
     
-    @Column(name = "`user_name`", nullable = false)
+    @Column(name = "`user_name`")
     private String username;
     
-    @Column( name = "`password`",nullable = false)
+    @Column( name = "`password`")
     private String password;
     
     private int active;
     
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(
     		name="user_role",
     		joinColumns =  @JoinColumn(name="id_utilisateur"),
@@ -38,20 +38,20 @@ public class Utilisateur implements Serializable {
     @Column(name = "`email`")
     private String email;
     
-    @Column(name = "`full_name`")
-    private String fullName;
+    @Column(name = "`phone`")
+    private String phone;
     
     public Utilisateur() {
 	}
     
-	public Utilisateur(String username, String password, int active, List<Role> roles, String email, String fullName) {
+	public Utilisateur(String username, String password, int active, List<Role> roles, String email, String phone) {
 		super();
 		this.username = username;
 		this.password = password;
 		this.active = active;
 		this.roles = roles;
 		this.email = email;
-		this.fullName = fullName;
+		this.phone = phone;
 	}
 
 	public String getUsername() {
@@ -95,12 +95,12 @@ public class Utilisateur implements Serializable {
 		this.email = email;
 	}
 
-	public String getFullName() {
-		return fullName;
+	public String getphone() {
+		return phone;
 	}
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
+	public void setphone(String phone) {
+		this.phone = phone;
 	}
 
 	public Long getId() {
